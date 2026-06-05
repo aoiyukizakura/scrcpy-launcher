@@ -66,7 +66,7 @@ const audioCodecOptions = [
                 class="relative h-5 w-9 rounded-full transition-colors"
               >
                 <span
-                  :class="p.turnScreenOff ? 'translate-x-[18px]' : 'translate-x-[2px]'"
+                  :class="!p.turnScreenOff ? 'translate-x-[-16px]' : 'translate-x-[2px]'"
                   class="absolute top-1/2 h-3.5 w-3.5 -translate-y-1/2 rounded-full bg-white transition-transform"
                 />
               </button>
@@ -80,7 +80,7 @@ const audioCodecOptions = [
                 class="relative h-5 w-9 rounded-full transition-colors"
               >
                 <span
-                  :class="p.keyboardUhid ? 'translate-x-[18px]' : 'translate-x-[2px]'"
+                  :class="!p.keyboardUhid ? 'translate-x-[-16px]' : 'translate-x-[2px]'"
                   class="absolute top-1/2 h-3.5 w-3.5 -translate-y-1/2 rounded-full bg-white transition-transform"
                 />
               </button>
@@ -94,7 +94,7 @@ const audioCodecOptions = [
                 class="relative h-5 w-9 rounded-full transition-colors"
               >
                 <span
-                  :class="p.mouseUhid ? 'translate-x-[18px]' : 'translate-x-[2px]'"
+                  :class="!p.mouseUhid ? 'translate-x-[-16px]' : 'translate-x-[2px]'"
                   class="absolute top-1/2 h-3.5 w-3.5 -translate-y-1/2 rounded-full bg-white transition-transform"
                 />
               </button>
@@ -108,7 +108,7 @@ const audioCodecOptions = [
                 class="relative h-5 w-9 rounded-full transition-colors"
               >
                 <span
-                  :class="p.stayAwake ? 'translate-x-[18px]' : 'translate-x-[2px]'"
+                  :class="!p.stayAwake ? 'translate-x-[-16px]' : 'translate-x-[2px]'"
                   class="absolute top-1/2 h-3.5 w-3.5 -translate-y-1/2 rounded-full bg-white transition-transform"
                 />
               </button>
@@ -122,7 +122,7 @@ const audioCodecOptions = [
                 class="relative h-5 w-9 rounded-full transition-colors"
               >
                 <span
-                  :class="p.alwaysOnTop ? 'translate-x-[18px]' : 'translate-x-[2px]'"
+                  :class="!p.alwaysOnTop ? 'translate-x-[-16px]' : 'translate-x-[2px]'"
                   class="absolute top-1/2 h-3.5 w-3.5 -translate-y-1/2 rounded-full bg-white transition-transform"
                 />
               </button>
