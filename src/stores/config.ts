@@ -1,0 +1,99 @@
+import { defineStore } from "pinia";
+import { ref, watch } from "vue";
+import { invoke } from "@tauri-apps/api/core";
+import type { AppConfig, ScrcpyParams } from "@/types";
+
+/**
+ * Config store — manages persisted application configuration.
+ * Loads from Rust backend on creation, syncs changes with debounce.
+ */
+const DEFAULT_PARAMS: ScrcpyParams = {
+  turnScreenOff: false,
+  keyboardUhid: false,
+  mouseUhid: false,
+  stayAwake: false,
+  alwaysOnTop: false,
+  maxSize: null,
+  maxFps: null,
+  videoBitRate: "24M",
+  videoCodec: null,
+  audioCodec: null,
+  newDisplayResolution: null,
+  newDisplayDpi: null,
+};
+
+export const useConfigStore = defineStore("config", () => {
+  const scrcpyPath = ref<string | null>(null);
+  const adbPath = ref<string | null>(null);
+  const favoritePackages = ref<string[]>([]);
+  const params = ref<ScrcpyParams>({ ...DEFAULT_PARAMS });
+  const loaded = ref(false);
+
+  /** Load config from the Rust backend */
+  async function load() {
+    try {
+      const config = await invoke<AppConfig>("get_config");
+      scrcpyPath.value = config.scrcpyPath;
+      adbPath.value = config.adbPath;
+      favoritePackages.value = config.favoritePackages ?? [];
+      if (config.params) {
+        params.value = { ...DEFAULT_PARAMS, ...config.params };
+      }
+    } catch (e) {
+      console.error("Failed to load config:", e);
+    } finally {
+      loaded.value = true;
+    }
+  }
+
+  /** Save current config to disk (debounced) */
+  let saveTimer: ReturnType<typeof setTimeout> | null = null;
+  function save() {
+    if (saveTimer) clearTimeout(saveTimer);
+    saveTimer = setTimeout(async () => {
+      try {
+        await invoke("save_config", {
+          config: {
+            scrcpyPath: scrcpyPath.value,
+            adbPath: adbPath.value,
+            favoritePackages: favoritePackages.value,
+            params: params.value,
+          },
+        });
+      } catch (e) {
+        console.error("Failed to save config:", e);
+      }
+    }, 500);
+  }
+
+  /** Toggle a favorite package */
+  function toggleFavorite(packageName: string) {
+    const idx = favoritePackages.value.indexOf(packageName);
+    if (idx >= 0) {
+      favoritePackages.value.splice(idx, 1);
+    } else {
+      favoritePackages.value.push(packageName);
+    }
+    save();
+  }
+
+  function isFavorite(packageName: string): boolean {
+    return favoritePackages.value.includes(packageName);
+  }
+
+  // Watch params for changes and auto-save
+  watch(params, () => save(), { deep: true });
+  watch(favoritePackages, () => save(), { deep: true });
+
+  return {
+    scrcpyPath,
+    adbPath,
+    favoritePackages,
+    params,
+    loaded,
+    load,
+    save,
+    toggleFavorite,
+    isFavorite,
+  };
+});
