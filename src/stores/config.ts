@@ -1,11 +1,11 @@
 import { defineStore } from "pinia";
 import { ref, watch } from "vue";
-import { invoke } from "@tauri-apps/api/core";
-import type { AppConfig, ScrcpyParams } from "@/types";
+import { platform } from "@/platform";
+import type { ScrcpyParams } from "@/types";
 
 /**
  * Config store — manages persisted application configuration.
- * Loads from Rust backend on creation, syncs changes with debounce.
+ * Uses the platform adapter for storage, so it works on both Tauri and Web.
  */
 const DEFAULT_PARAMS: ScrcpyParams = {
   turnScreenOff: false,
@@ -29,10 +29,10 @@ export const useConfigStore = defineStore("config", () => {
   const params = ref<ScrcpyParams>({ ...DEFAULT_PARAMS });
   const loaded = ref(false);
 
-  /** Load config from the Rust backend */
+  /** Load config from the platform adapter */
   async function load() {
     try {
-      const config = await invoke<AppConfig>("get_config");
+      const config = await platform.getConfig();
       scrcpyPath.value = config.scrcpyPath;
       adbPath.value = config.adbPath;
       favoritePackages.value = config.favoritePackages ?? [];
@@ -46,19 +46,17 @@ export const useConfigStore = defineStore("config", () => {
     }
   }
 
-  /** Save current config to disk (debounced) */
+  /** Save current config via the platform adapter (debounced) */
   let saveTimer: ReturnType<typeof setTimeout> | null = null;
   function save() {
     if (saveTimer) clearTimeout(saveTimer);
     saveTimer = setTimeout(async () => {
       try {
-        await invoke("save_config", {
-          config: {
-            scrcpyPath: scrcpyPath.value,
-            adbPath: adbPath.value,
-            favoritePackages: favoritePackages.value,
-            params: params.value,
-          },
+        await platform.saveConfig({
+          scrcpyPath: scrcpyPath.value,
+          adbPath: adbPath.value,
+          favoritePackages: favoritePackages.value,
+          params: params.value,
         });
       } catch (e) {
         console.error("Failed to save config:", e);

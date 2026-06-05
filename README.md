@@ -16,6 +16,7 @@ Built with **Rust + Tauri v2 + Vue 3 + TypeScript + Tailwind CSS v4**.
 - 🔎 **Instant Search** — filter by app name or package name
 - 🖼️ **Icon Loading** — fetches app icons from a remote API and caches them locally, with letter-avatar fallback
 - 📱 **Multi-Device** — supports multiple connected devices with a dropdown selector
+- 🌐 **Web Demo Mode** — same UI runs in the browser with mock data; explore the interface without installing anything
 - 🌙 **Dark Theme** — designed for low-light environments
 
 ## Prerequisites
@@ -70,17 +71,17 @@ adb devices
 - [Rust](https://rustup.rs/) ≥ 1.70
 - [Tauri v2 system dependencies](https://v2.tauri.app/start/prerequisites/)
 
-### Quick Start
+### Quick Start (Desktop)
 
 ```bash
 # Clone the repo
-git clone https://github.com/your-org/scrcpy-launcher.git
+git clone https://github.com/aoiyukizakura/scrcpy-launcher.git
 cd scrcpy-launcher
 
 # Install frontend dependencies
 npm install
 
-# Run in development mode
+# Run in Tauri development mode
 npm run tauri dev
 ```
 
@@ -91,6 +92,27 @@ npm run tauri build
 ```
 
 The built installer will be in `src-tauri/target/release/bundle/`.
+
+### Web Demo / Deploy
+
+The same codebase runs as a standalone SPA in any browser:
+
+```bash
+# Start web dev server
+npm run dev:web
+
+# Or build for static hosting
+npm run build:web
+```
+
+In web mode:
+- The full UI is functional (config, search, favorites, grid)
+- 20 realistic demo apps are displayed for exploration
+- Config is persisted to `localStorage`
+- Launching apps is disabled (requires desktop)
+- A banner clearly indicates "Web Demo Mode"
+
+The `dist/` output can be deployed to any static host (Vercel, Netlify, GitHub Pages, etc.).
 
 ## Architecture
 

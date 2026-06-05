@@ -1,12 +1,11 @@
 import { onUnmounted } from "vue";
-import { Command } from "@tauri-apps/plugin-shell";
+import { platform } from "@/platform";
 import { useDeviceStore } from "@/stores/device";
 
 /**
  * Composable for ADB device detection and polling.
- *
- * Uses the Tauri shell plugin to run `adb devices` and parses the output
- * to detect connected Android devices. Polls every 3 seconds while active.
+ * Uses the platform adapter to execute `adb devices`.
+ * Polls every 3 seconds while active.
  */
 export function useDevices() {
   const store = useDeviceStore();
@@ -16,19 +15,14 @@ export function useDevices() {
   /** Run `adb devices` once and update the device store */
   async function scan() {
     try {
-      // Use the shell plugin to execute adb
-      const cmd = Command.create("adb", ["devices"]);
-      const output = await cmd.execute();
-
+      const output = await platform.executeCommand("adb", ["devices"]);
       if (output.code === 0) {
         store.updateFromAdbOutput(output.stdout);
       } else {
-        // adb might not be available or gave an error
         console.warn("adb devices failed:", output.stderr);
       }
     } catch (err) {
       console.warn("Failed to run adb devices:", err);
-      // adb binary not found or permission denied
     }
   }
 

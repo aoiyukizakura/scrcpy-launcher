@@ -1,5 +1,5 @@
 import { ref } from "vue";
-import { invoke } from "@tauri-apps/api/core";
+import { platform } from "@/platform";
 import { useAppStore } from "@/stores/apps";
 
 /**
@@ -11,7 +11,7 @@ const loadingSet = ref<Set<string>>(new Set());
 /**
  * Composable for the icon loading system with three-level fallback:
  *
- *   1. Local cache — Rust backend checks filesystem for cached PNG
+ *   1. Local cache (Tauri: filesystem PNG; Web: in-memory Map)
  *   2. Remote API — fetch from `https://api.ihnet.net/icon.php?packageName=`
  *      and cache the result locally
  *   3. Generated fallback — the AppCard component renders a colored letter
@@ -24,7 +24,7 @@ export function useIcons() {
 
   /**
    * Load an icon for a single package name.
-   * Returns the icon URL (data URL or cached file path) or null if fallback is needed.
+   * Returns the icon URL (data URL) or null if fallback is needed.
    */
   async function loadIcon(packageName: string): Promise<string | null> {
     // Prevent duplicate loads for the same package
@@ -32,13 +32,14 @@ export function useIcons() {
     loadingSet.value.add(packageName);
 
     try {
-      // ---- Level 1: Check local cache ----
-      const cached = await invoke<string | null>("read_cached_icon", {
-        packageName,
-      });
+      // ---- Level 1: Check local cache (platform-aware) ----
+      const cached = await platform.readCachedIcon(packageName);
       if (cached) {
-        appStore.updateAppIcon(packageName, cached);
-        return cached;
+        // cached is either a file path (Tauri) or raw base64 (Web)
+        // Both cases: if it starts with "data:" use as-is, otherwise wrap
+        const url = cached.startsWith("data:") ? cached : `data:image/png;base64,${cached}`;
+        appStore.updateAppIcon(packageName, url);
+        return url;
       }
 
       // ---- Level 2: Fetch from remote API ----
@@ -70,18 +71,13 @@ async function fetchFromApi(packageName: string): Promise<string | null> {
 
   try {
     const response = await fetch(url, {
-      // Timeout after 5 seconds so slow API doesn't stall the UI forever
       signal: AbortSignal.timeout(5000),
     });
 
     if (!response.ok) return null;
 
-    // Get the content type to verify it's an image
     const contentType = response.headers.get("content-type") ?? "";
-    if (!contentType.startsWith("image/")) {
-      // Might be JSON error or HTML — skip
-      return null;
-    }
+    if (!contentType.startsWith("image/")) return null;
 
     const blob = await response.blob();
     if (blob.size === 0) return null;
@@ -90,15 +86,13 @@ async function fetchFromApi(packageName: string): Promise<string | null> {
     const base64 = await blobToBase64(blob);
     const dataUrl = `data:${blob.type || "image/png"};base64,${base64}`;
 
-    // Persist to local cache via Rust backend (fire-and-forget)
-    invoke("save_cached_icon", {
-      packageName,
-      iconBase64: base64,
-    }).catch((e) => console.warn("Failed to cache icon:", e));
+    // Persist to local cache via platform adapter (fire-and-forget)
+    platform.saveCachedIcon(packageName, base64).catch((e) =>
+      console.warn("Failed to cache icon:", e),
+    );
 
     return dataUrl;
   } catch {
-    // Network errors, timeouts — expected, don't log verbosely
     return null;
   }
 }
@@ -111,7 +105,6 @@ function blobToBase64(blob: Blob): Promise<string> {
     const reader = new FileReader();
     reader.onloadend = () => {
       const result = reader.result as string;
-      // Strip the "data:..." prefix to get raw base64
       const base64 = result.split(",")[1] ?? result;
       resolve(base64);
     };

@@ -1,5 +1,5 @@
 import { ref } from "vue";
-import { Command } from "@tauri-apps/plugin-shell";
+import { platform } from "@/platform";
 import { useAppStore } from "@/stores/apps";
 import { useConfigStore } from "@/stores/config";
 import type { AppInfo } from "@/types";
@@ -7,7 +7,7 @@ import type { AppInfo } from "@/types";
 /**
  * Regex to parse `scrcpy --list-apps` output lines.
  *
- * Expected format (from scrcpy v4.0+):
+ * Expected format (from scrcpy v3.0+):
  *   - App Name com.package.name
  *
  * The app name may contain spaces, emoji, and Unicode characters.
@@ -38,11 +38,7 @@ export function useAppList() {
     error.value = null;
 
     try {
-      const cmd = Command.create("scrcpy", ["--list-apps"]);
-      const output = await cmd.execute();
-
-      // scrcpy writes the app list to stdout
-      // (it may also emit server info/error lines)
+      const output = await platform.executeCommand("scrcpy", ["--list-apps"]);
       const stdout = output.stdout;
 
       if (output.code !== 0 && !stdout.includes("- ")) {

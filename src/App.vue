@@ -1,17 +1,16 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
-import { invoke } from "@tauri-apps/api/core";
+import { platform } from "@/platform";
 import { useDevices } from "@/composables/useDevices";
 import { useLauncher } from "@/composables/useLauncher";
 import { useConfigStore } from "@/stores/config";
-import type { EnvCheckResult } from "@/types";
 import DeviceWarning from "@/components/DeviceWarning.vue";
 import SearchBar from "@/components/SearchBar.vue";
 import AppGrid from "@/components/AppGrid.vue";
 import SettingsDialog from "@/components/SettingsDialog.vue";
 import ConfigPanel from "@/components/ConfigPanel.vue";
 import ErrorDialog from "@/components/ErrorDialog.vue";
-import { Settings, Wrench } from "lucide-vue-next";
+import { Settings, Wrench, Monitor, X } from "lucide-vue-next";
 
 // ---- Environment check ----
 const scrcpyFound = ref<boolean | null>(null);
@@ -19,7 +18,7 @@ const adbFound = ref<boolean | null>(null);
 
 async function checkEnv() {
   try {
-    const result = await invoke<EnvCheckResult>("check_environment");
+    const result = await platform.checkEnvironment();
     scrcpyFound.value = result.scrcpy;
     adbFound.value = result.adb;
   } catch (e) {
@@ -36,25 +35,50 @@ const configStore = useConfigStore();
 const { startPolling } = useDevices();
 
 // ---- Launcher ----
-const { lastError } = useLauncher();
+const { lastError, showDesktopNotice } = useLauncher();
 
 // ---- Dialog visibility ----
 const showSettings = ref(false);
 const showConfig = ref(false);
 
+/** Whether to show the web-mode demo banner */
+const isWebMode = platform.kind === "web";
+const dismissWebBanner = ref(false);
+
 // ---- Lifecycle ----
 onMounted(async () => {
   await checkEnv();
   await configStore.load();
-  // Start device polling if adb is available
-  if (adbFound.value) {
-    startPolling();
-  }
+  // Start device polling (desktop: real ADB; web: mock data)
+  startPolling();
 });
 </script>
 
 <template>
   <div class="flex h-screen w-screen flex-col bg-zinc-950">
+    <!-- ===== Web Demo Banner ===== -->
+    <div
+      v-if="isWebMode && !dismissWebBanner"
+      class="flex shrink-0 items-center justify-between bg-brand-900/40 border-b border-brand-700/30 px-4 py-2"
+    >
+      <div class="flex items-center gap-2 text-sm text-brand-200">
+        <Monitor class="h-4 w-4 shrink-0" />
+        <span>
+          <strong>网页演示模式</strong>
+          <span class="hidden sm:inline">
+            — 展示模拟数据，完整功能请使用桌面版
+          </span>
+        </span>
+      </div>
+      <button
+        @click="dismissWebBanner = true"
+        class="rounded p-1 text-brand-300 transition-colors hover:bg-brand-800/50 hover:text-brand-100"
+        title="关闭"
+      >
+        <X class="h-4 w-4" />
+      </button>
+    </div>
+
     <!-- ===== Status Bar ===== -->
     <header class="flex shrink-0 items-center justify-between border-b border-zinc-800 px-4 py-2">
       <div class="flex items-center gap-3">
@@ -149,10 +173,19 @@ onMounted(async () => {
     <!-- ===== Dialogs & Panels ===== -->
     <SettingsDialog v-model:open="showSettings" />
     <ConfigPanel :open="showConfig" @close="showConfig = false" />
+
+    <!-- Error from scrcpy -->
     <ErrorDialog
       :open="!!lastError"
       :message="lastError ?? ''"
       @close="lastError = null"
+    />
+
+    <!-- Desktop notice (web mode click) -->
+    <ErrorDialog
+      :open="showDesktopNotice"
+      message="此功能仅限桌面版使用。请下载 Scrcpy Launcher 桌面客户端以通过 scrcpy 启动 Android 应用。"
+      @close="showDesktopNotice = false"
     />
   </div>
 </template>

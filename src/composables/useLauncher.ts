@@ -1,5 +1,5 @@
 import { ref } from "vue";
-import { Command } from "@tauri-apps/plugin-shell";
+import { platform } from "@/platform";
 import { useConfigStore } from "@/stores/config";
 import type { ScrcpyParams } from "@/types";
 
@@ -11,10 +11,12 @@ export function useLauncher() {
   const configStore = useConfigStore();
   const lastError = ref<string | null>(null);
   const launching = ref<Set<string>>(new Set()); // Track in-flight packages
+  /** True when user tried to launch from a platform that can't */
+  const showDesktopNotice = ref(false);
 
   /**
    * Build the scrcpy argument list from the current config params.
-   * Returns an array of arguments ready to pass to Command.create().
+   * Returns an array of arguments ready to pass to platform.spawnCommand().
    */
   function buildArgs(packageName: string): string[] {
     const args: string[] = [];
@@ -46,10 +48,6 @@ export function useLauncher() {
   /**
    * Build the --new-display argument from resolution and DPI.
    * Format: --new-display=1920x1080/224
-   *   - Resolution only → --new-display=1920x1080
-   *   - DPI only → --new-display (no value, or just the value)
-   *   - Both → --new-display=1920x1080/224
-   *   - Neither → no --new-display flag at all
    */
   function buildNewDisplayArg(p: ScrcpyParams, args: string[]) {
     const res = p.newDisplayResolution;
@@ -62,23 +60,20 @@ export function useLauncher() {
     } else if (dpi) {
       args.push(`--new-display=${dpi}`);
     }
-    // Neither: omit the flag entirely
   }
 
   /**
    * Pre-validate that the target package is still installed on the device.
-   * Uses `adb shell pm list packages` to check.
    */
   async function validatePackage(packageName: string): Promise<boolean> {
     try {
-      const cmd = Command.create("adb", [
+      const output = await platform.executeCommand("adb", [
         "shell",
         "pm",
         "list",
         "packages",
         packageName,
       ]);
-      const output = await cmd.execute();
       return output.stdout.includes(packageName);
     } catch {
       return false;
@@ -87,14 +82,20 @@ export function useLauncher() {
 
   /**
    * Launch scrcpy for a single app package.
-   * Spawns asynchronously — does NOT block the launcher UI.
-   * Tracks in-flight state per package to prevent double-clicks.
+   * On desktop (Tauri): spawns a real scrcpy window.
+   * On web: shows a notice that the desktop app is required.
    *
-   * @returns `true` if launch was initiated, `false` if blocked or failed validation
+   * @returns `true` if launch was initiated, `false` if blocked
    */
   async function launchApp(packageName: string): Promise<boolean> {
     // Prevent double-launch of same app
     if (launching.value.has(packageName)) return false;
+
+    // Web platform cannot launch native apps
+    if (!platform.canLaunchApps) {
+      showDesktopNotice.value = true;
+      return false;
+    }
 
     // Pre-launch validation: check app is installed
     const installed = await validatePackage(packageName);
@@ -108,16 +109,10 @@ export function useLauncher() {
 
     try {
       const args = buildArgs(packageName);
-      // Use spawn() so scrcpy runs independently without blocking the launcher UI.
-      // The returned Child runs detached — we clean up the launching flag immediately
-      // since scrcpy manages its own window lifecycle.
-      const cmd = Command.create("scrcpy", args);
-      await cmd.spawn();
+      await platform.spawnCommand("scrcpy", args);
 
       // Remove from in-flight set after a short delay to allow the process to start
-      // (and surface any immediate spawn errors via the catch block)
       setTimeout(() => launching.value.delete(packageName), 1000);
-
       return true;
     } catch (err) {
       launching.value.delete(packageName);
@@ -129,8 +124,8 @@ export function useLauncher() {
   return {
     lastError,
     launching,
+    showDesktopNotice,
     buildArgs,
     launchApp,
-    validatePackage,
   };
 }

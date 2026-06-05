@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
-import { invoke } from "@tauri-apps/api/core";
+import { platform } from "@/platform";
 import { useConfigStore } from "@/stores/config";
 import type { EnvCheckResult } from "@/types";
-import { X, FolderSearch, CheckCircle2, AlertTriangle } from "lucide-vue-next";
+import { X, FolderSearch, CheckCircle2, AlertTriangle, Globe } from "lucide-vue-next";
 
 const props = defineProps<{
   open: boolean;
@@ -25,7 +25,7 @@ const checking = ref(false);
 async function checkEnvironment() {
   checking.value = true;
   try {
-    envCheck.value = await invoke<EnvCheckResult>("check_environment");
+    envCheck.value = await platform.checkEnvironment();
   } catch (e) {
     console.error("Env check failed:", e);
   } finally {
@@ -65,6 +65,15 @@ watch(
 
         <!-- Content -->
         <div class="space-y-4 px-5 py-4">
+          <!-- Web mode notice -->
+          <div
+            v-if="platform.kind === 'web'"
+            class="flex items-center gap-2 rounded-lg border border-brand-800/40 bg-brand-950/30 px-3 py-2 text-xs text-brand-300"
+          >
+            <Globe class="h-3.5 w-3.5 shrink-0" />
+            <span>网页模式下 scrcpy/adb 不可用。本地配置保存在浏览器中。</span>
+          </div>
+
           <!-- Environment status -->
           <div class="space-y-2">
             <h4 class="text-xs font-medium text-zinc-400">依赖检测</h4>
