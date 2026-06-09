@@ -1,4 +1,4 @@
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Deserializer, Serialize};
 use std::path::PathBuf;
 
 /// Represents the result of an environment check for required tools.
@@ -21,7 +21,8 @@ pub struct ScrcpyParams {
     // Numeric / string values
     pub max_size: Option<u32>,
     pub max_fps: Option<u32>,
-    pub video_bit_rate: String,
+    #[serde(default = "default_bitrate", deserialize_with = "deser_bitrate")]
+    pub video_bit_rate: u32,
     pub video_codec: Option<String>,
     pub audio_codec: Option<String>,
     // New display composite
@@ -40,7 +41,7 @@ impl Default for ScrcpyParams {
             always_on_top: false,
             max_size: None,
             max_fps: None,
-            video_bit_rate: "24M".to_string(),
+            video_bit_rate: 24,
             video_codec: None,
             audio_codec: None,
             new_display_resolution: None,
@@ -116,6 +117,33 @@ pub fn save_config(config: AppConfig) -> Result<(), String> {
         serde_json::to_string_pretty(&config).map_err(|e| format!("Failed to serialize: {}", e))?;
     std::fs::write(&path, contents).map_err(|e| format!("Failed to write config: {}", e))?;
     Ok(())
+}
+
+/// Default video bitrate in Mbps.
+fn default_bitrate() -> u32 {
+    24
+}
+
+/// Deserializes video bitrate from either a number or a legacy string like "24M".
+fn deser_bitrate<'de, D>(deserializer: D) -> Result<u32, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let v = serde_json::Value::deserialize(deserializer)?;
+    match v {
+        serde_json::Value::Number(n) => n
+            .as_u64()
+            .map(|n| n as u32)
+            .ok_or_else(|| serde::de::Error::custom("bitrate number out of range")),
+        serde_json::Value::String(s) => {
+            // Parse legacy format: strip non-digit chars, parse the number
+            let digits: String = s.chars().filter(|c| c.is_ascii_digit()).collect();
+            digits
+                .parse::<u32>()
+                .map_err(|_| serde::de::Error::custom("invalid bitrate string"))
+        }
+        _ => Ok(default_bitrate()),
+    }
 }
 
 /// Searches for an executable in the system PATH and common install directories.

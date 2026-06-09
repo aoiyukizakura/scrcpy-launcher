@@ -1,7 +1,9 @@
 <script setup lang="ts">
+import { computed, ref } from "vue";
 import { useConfigStore } from "@/stores/config";
+import { buildScrcpyArgs } from "@/composables/useLauncher";
 import NewDisplayConfig from "./NewDisplayConfig.vue";
-import { X } from "lucide-vue-next";
+import { X, ChevronDown, ChevronUp } from "lucide-vue-next";
 
 defineProps<{
   open: boolean;
@@ -13,6 +15,16 @@ const emit = defineEmits<{
 
 const configStore = useConfigStore();
 const p = configStore.params;
+
+/** Whether the command preview is expanded */
+const previewExpanded = ref(false);
+
+/** Build full scrcpy command line for preview */
+const fullCommandPreview = computed(() => {
+  const args = buildScrcpyArgs(p, "<APP>");
+  const cmd = ["scrcpy", ...args];
+  return cmd.join(" \\\n  ");
+});
 
 /** Video codec options per scrcpy v4.0 docs */
 const videoCodecOptions = [
@@ -154,13 +166,25 @@ const audioCodecOptions = [
             </div>
 
             <div>
-              <label class="mb-1 block text-xs text-zinc-500">视频码率</label>
+              <label class="mb-1 flex items-center justify-between text-xs text-zinc-500">
+                <span>视频码率</span>
+                <span class="tabular-nums text-brand-400">{{ p.videoBitRate }} Mbps</span>
+              </label>
               <input
-                v-model="p.videoBitRate"
-                type="text"
-                placeholder="例如 24M"
-                class="w-full rounded-md border border-zinc-800 bg-zinc-900/50 px-2.5 py-1.5 text-xs text-zinc-200 placeholder:text-zinc-600 outline-none focus:border-brand-600/50"
+                v-model.number="p.videoBitRate"
+                type="range"
+                min="1"
+                max="200"
+                step="1"
+                class="w-full h-1.5 appearance-none rounded-full bg-zinc-700 accent-brand-500 outline-none cursor-pointer"
               />
+              <div class="mt-0.5 flex justify-between text-[10px] text-zinc-600">
+                <span>1</span>
+                <span>50</span>
+                <span>100</span>
+                <span>150</span>
+                <span>200</span>
+              </div>
             </div>
           </section>
 
@@ -207,12 +231,25 @@ const audioCodecOptions = [
           </section>
         </div>
 
-        <!-- Footer hint -->
-        <div class="border-t border-zinc-800 px-4 py-2.5">
-          <p class="text-[10px] text-zinc-500 leading-relaxed">
-            参数实时生效，每次点击「运行」时会自动拼接当前配置。
-            参考 scrcpy v4.0 官方文档。
-          </p>
+        <!-- Footer: full command preview -->
+        <div class="border-t border-zinc-800">
+          <button
+            @click="previewExpanded = !previewExpanded"
+            class="flex w-full items-center justify-between px-4 py-2.5 text-[10px] font-medium text-zinc-500 transition-colors hover:text-zinc-300"
+          >
+            <span>命令预览</span>
+            <ChevronDown v-if="!previewExpanded" class="h-3.5 w-3.5" />
+            <ChevronUp v-else class="h-3.5 w-3.5" />
+          </button>
+          <div
+            v-if="previewExpanded"
+            class="border-t border-zinc-800 px-4 py-3"
+          >
+            <pre class="overflow-x-auto rounded-md bg-zinc-950 px-3 py-2 text-[10px] leading-relaxed text-zinc-300"><code>{{ fullCommandPreview }}</code></pre>
+            <p class="mt-1.5 text-[10px] text-zinc-600 leading-relaxed">
+              参数实时生效，每次点击「运行」时会自动拼接当前配置。参考 scrcpy v4.0 官方文档。
+            </p>
+          </div>
         </div>
       </div>
     </Transition>

@@ -87,7 +87,7 @@ export const WEB_PLATFORM: PlatformApi = {
         alwaysOnTop: false,
         maxSize: null,
         maxFps: null,
-        videoBitRate: "24M",
+        videoBitRate: 24,
         videoCodec: null,
         audioCodec: null,
         newDisplayResolution: null,

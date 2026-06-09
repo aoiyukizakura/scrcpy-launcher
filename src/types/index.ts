@@ -22,7 +22,7 @@ export interface ScrcpyParams {
   // Numeric / string values
   maxSize: number | null; // -m / --max-size
   maxFps: number | null; // --max-fps
-  videoBitRate: string; // -b / --video-bit-rate (e.g., "24M")
+  videoBitRate: number; // -b / --video-bit-rate (Mbps, e.g., 24)
   videoCodec: string | null; // --video-codec (h264/h265/av1)
   audioCodec: string | null; // --audio-codec (opus/aac/flac)
 

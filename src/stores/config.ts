@@ -15,7 +15,7 @@ const DEFAULT_PARAMS: ScrcpyParams = {
   alwaysOnTop: false,
   maxSize: null,
   maxFps: null,
-  videoBitRate: "24M",
+  videoBitRate: 24,
   videoCodec: null,
   audioCodec: null,
   newDisplayResolution: null,
@@ -38,7 +38,13 @@ export const useConfigStore = defineStore("config", () => {
       adbPath.value = config.adbPath;
       favoritePackages.value = config.favoritePackages ?? [];
       if (config.params) {
+        // Deep-merge defaults with loaded params
         params.value = { ...DEFAULT_PARAMS, ...config.params };
+        // Migrate videoBitRate from old string format (e.g., "24M") to number
+        if (typeof params.value.videoBitRate === "string") {
+          const parsed = parseInt((params.value.videoBitRate as unknown as string).replace(/[^\d]/g, ""));
+          params.value.videoBitRate = isNaN(parsed) ? 24 : parsed;
+        }
       }
     } catch (e) {
       console.error("Failed to load config:", e);

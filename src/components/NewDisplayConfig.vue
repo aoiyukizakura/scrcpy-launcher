@@ -24,10 +24,10 @@ const preview = computed(() => {
   if (flex) parts.push("-x");
 
   // --new-display value
+  // DPI alone is not valid — it would be misread as resolution
   if (res && dpi) parts.push(`--new-display=${res}/${dpi}`);
   else if (res) parts.push(`--new-display=${res}`);
-  else if (dpi) parts.push(`--new-display=${dpi}`);
-  else if (flex) parts.push("--new-display");
+  else parts.push("--new-display");
 
   return parts.join(" ");
 });
