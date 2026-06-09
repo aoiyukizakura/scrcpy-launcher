@@ -53,6 +53,12 @@ export function useLauncher() {
     const res = p.newDisplayResolution;
     const dpi = p.newDisplayDpi;
 
+    // Flexible display flag
+
+    if (p.flexibleDisplay) {
+      args.push("-x", "--flex-display");
+    }
+
     if (res && dpi) {
       args.push(`--new-display=${res}/${dpi}`);
     } else if (res) {

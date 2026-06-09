@@ -20,6 +20,7 @@ const DEFAULT_PARAMS: ScrcpyParams = {
   audioCodec: null,
   newDisplayResolution: null,
   newDisplayDpi: null,
+  flexibleDisplay: false,
 };
 
 export const useConfigStore = defineStore("config", () => {

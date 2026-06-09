@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
 import type { AppInfo } from "@/types";
+import { useConfigStore } from "@/stores/config";
 
 /**
  * App store — manages the list of apps from the connected device,
@@ -26,7 +27,8 @@ export const useAppStore = defineStore("app", () => {
     }
 
     if (showFavoritesOnly.value) {
-      result = result.filter((a) => a.isFavorite);
+      const configStore = useConfigStore();
+      result = result.filter((a) => configStore.isFavorite(a.packageName));
     }
 
     return result;

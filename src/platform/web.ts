@@ -92,6 +92,7 @@ export const WEB_PLATFORM: PlatformApi = {
         audioCodec: null,
         newDisplayResolution: null,
         newDisplayDpi: null,
+        flexibleDisplay: false,
       },
     };
   },

@@ -29,6 +29,7 @@ export interface ScrcpyParams {
   // New display composite
   newDisplayResolution: string | null; // e.g., "1920x1080"
   newDisplayDpi: number | null; // e.g., 224
+  flexibleDisplay: boolean; // -x / --flex-display
 }
 
 /** Persisted application configuration */
