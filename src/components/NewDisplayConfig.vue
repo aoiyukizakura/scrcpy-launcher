@@ -35,24 +35,23 @@ const preview = computed(() => {
     <label
       class="group flex cursor-pointer select-none items-center gap-2.5 rounded-md border border-zinc-800/40 bg-zinc-900/50 px-2.5 py-2 transition-colors hover:border-zinc-700/60 hover:bg-zinc-900/70"
     >
-      <!-- Hidden native checkbox (v-model + a11y) -->
+      <!-- Hidden native checkbox (v-model + a11y) — focus ring via :focus-within on label -->
       <input
         v-model="p.flexibleDisplay"
         type="checkbox"
         class="peer sr-only"
       />
 
-      <!-- Custom toggle track -->
+      <!-- Custom toggle track — Vue reactive binding replaces peer-checked for children -->
       <div
         class="relative h-4 w-7 shrink-0 rounded-full transition-colors duration-200 ease-out
-          bg-zinc-700
-          peer-checked:bg-brand-600/80
-          peer-focus-visible:ring-1 peer-focus-visible:ring-brand-500/50 peer-focus-visible:ring-offset-1 peer-focus-visible:ring-offset-zinc-900"
+          focus-within:ring-1 focus-within:ring-brand-500/50 focus-within:ring-offset-1 focus-within:ring-offset-zinc-900"
+        :class="p.flexibleDisplay ? 'bg-brand-600/80' : 'bg-zinc-700'"
       >
-        <!-- Toggle thumb -->
+        <!-- Toggle thumb — Vue reactive binding instead of peer-checked (child of sibling, peer can't reach) -->
         <div
-          class="absolute left-0.5 top-0.5 h-3 w-3 rounded-full bg-white shadow-sm transition-transform duration-200 ease-out
-            peer-checked:translate-x-3"
+          class="absolute left-0.5 top-0.5 h-3 w-3 rounded-full bg-white shadow-sm transition-transform duration-200 ease-out"
+          :class="p.flexibleDisplay ? 'translate-x-3' : ''"
         />
       </div>
 
