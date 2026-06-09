@@ -15,7 +15,7 @@ pub struct ScrcpyParams {
     // Boolean flags
     pub turn_screen_off: bool,
     pub keyboard_uhid: bool,
-    pub mouse_uhid: bool,
+    pub gamepad_uhid: bool,
     pub stay_awake: bool,
     pub always_on_top: bool,
     // Numeric / string values
@@ -27,6 +27,7 @@ pub struct ScrcpyParams {
     // New display composite
     pub new_display_resolution: Option<String>,
     pub new_display_dpi: Option<u32>,
+    pub flexible_display: bool,
 }
 
 impl Default for ScrcpyParams {
@@ -34,7 +35,7 @@ impl Default for ScrcpyParams {
         Self {
             turn_screen_off: false,
             keyboard_uhid: false,
-            mouse_uhid: false,
+            gamepad_uhid: false,
             stay_awake: false,
             always_on_top: false,
             max_size: None,
@@ -44,6 +45,7 @@ impl Default for ScrcpyParams {
             audio_codec: None,
             new_display_resolution: None,
             new_display_dpi: None,
+            flexible_display: false,
         }
     }
 }

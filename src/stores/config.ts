@@ -10,7 +10,7 @@ import type { ScrcpyParams } from "@/types";
 const DEFAULT_PARAMS: ScrcpyParams = {
   turnScreenOff: false,
   keyboardUhid: false,
-  mouseUhid: false,
+  gamepadUhid: false,
   stayAwake: false,
   alwaysOnTop: false,
   maxSize: null,

@@ -82,7 +82,7 @@ export const WEB_PLATFORM: PlatformApi = {
       params: {
         turnScreenOff: false,
         keyboardUhid: false,
-        mouseUhid: false,
+        gamepadUhid: false,
         stayAwake: false,
         alwaysOnTop: false,
         maxSize: null,

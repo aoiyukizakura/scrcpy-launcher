@@ -15,7 +15,7 @@ export interface ScrcpyParams {
   // Boolean flags
   turnScreenOff: boolean; // -S / --turn-screen-off
   keyboardUhid: boolean; // -K / --keyboard=uhid
-  mouseUhid: boolean; // -G / --mouse=uhid
+  gamepadUhid: boolean; // -G / --gamepad=uhid
   stayAwake: boolean; // -w / --stay-awake
   alwaysOnTop: boolean; // --always-on-top
 

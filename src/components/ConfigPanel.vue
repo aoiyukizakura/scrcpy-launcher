@@ -66,7 +66,7 @@ const audioCodecOptions = [
                 class="relative h-5 w-9 rounded-full transition-colors"
               >
                 <span
-                  :class="!p.turnScreenOff ? 'translate-x-[-16px]' : 'translate-x-[2px]'"
+                  :class="p.turnScreenOff ? 'translate-x-[18px]' : 'translate-x-[2px]'"
                   class="absolute top-1/2 h-3.5 w-3.5 -translate-y-1/2 rounded-full bg-white transition-transform"
                 />
               </button>
@@ -80,21 +80,21 @@ const audioCodecOptions = [
                 class="relative h-5 w-9 rounded-full transition-colors"
               >
                 <span
-                  :class="!p.keyboardUhid ? 'translate-x-[-16px]' : 'translate-x-[2px]'"
+                  :class="p.keyboardUhid ? 'translate-x-[18px]' : 'translate-x-[2px]'"
                   class="absolute top-1/2 h-3.5 w-3.5 -translate-y-1/2 rounded-full bg-white transition-transform"
                 />
               </button>
             </label>
 
             <label class="flex items-center justify-between">
-              <span class="text-xs text-zinc-300">模拟鼠标 (UHID)</span>
+              <span class="text-xs text-zinc-300">模拟手柄/游戏控制器 (Gamepad UHID)</span>
               <button
-                @click="p.mouseUhid = !p.mouseUhid"
-                :class="p.mouseUhid ? 'bg-brand-600' : 'bg-zinc-700'"
+                @click="p.gamepadUhid = !p.gamepadUhid"
+                :class="p.gamepadUhid ? 'bg-brand-600' : 'bg-zinc-700'"
                 class="relative h-5 w-9 rounded-full transition-colors"
               >
                 <span
-                  :class="!p.mouseUhid ? 'translate-x-[-16px]' : 'translate-x-[2px]'"
+                  :class="p.gamepadUhid ? 'translate-x-[18px]' : 'translate-x-[2px]'"
                   class="absolute top-1/2 h-3.5 w-3.5 -translate-y-1/2 rounded-full bg-white transition-transform"
                 />
               </button>
@@ -108,7 +108,7 @@ const audioCodecOptions = [
                 class="relative h-5 w-9 rounded-full transition-colors"
               >
                 <span
-                  :class="!p.stayAwake ? 'translate-x-[-16px]' : 'translate-x-[2px]'"
+                  :class="p.stayAwake ? 'translate-x-[18px]' : 'translate-x-[2px]'"
                   class="absolute top-1/2 h-3.5 w-3.5 -translate-y-1/2 rounded-full bg-white transition-transform"
                 />
               </button>
@@ -122,7 +122,7 @@ const audioCodecOptions = [
                 class="relative h-5 w-9 rounded-full transition-colors"
               >
                 <span
-                  :class="!p.alwaysOnTop ? 'translate-x-[-16px]' : 'translate-x-[2px]'"
+                  :class="p.alwaysOnTop ? 'translate-x-[18px]' : 'translate-x-[2px]'"
                   class="absolute top-1/2 h-3.5 w-3.5 -translate-y-1/2 rounded-full bg-white transition-transform"
                 />
               </button>

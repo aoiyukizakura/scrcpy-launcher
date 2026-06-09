@@ -11,7 +11,7 @@ Built with **Rust + Tauri v2 + Vue 3 + TypeScript + Tailwind CSS v4**.
 
 - 🔍 **App Discovery** — reads your phone's app list via `scrcpy --list-apps` and displays them in a responsive grid
 - 🚀 **One-Click Launch** — click any app to open it in an independent scrcpy window
-- ⚙️ **Visual Config** — toggle screen-off, keyboard/mouse UHID, codecs, bitrate, max FPS, new-display, and more
+- ⚙️ **Visual Config** — toggle screen-off, keyboard/gamepad UHID, codecs, bitrate, max FPS, new-display, and more
 - ⭐ **Favorites** — star frequently used apps; filter to show only favorites
 - 🔎 **Instant Search** — filter by app name or package name
 - 🖼️ **Icon Loading** — fetches app icons from a remote API and caches them locally, with letter-avatar fallback
@@ -141,7 +141,7 @@ The `dist/` output can be deployed to any static host (Vercel, Netlify, GitHub P
 |-----------|------|------|---------|
 | Turn screen off | `-S` / `--turn-screen-off` | Switch | Off |
 | Keyboard (UHID) | `-K` / `--keyboard=uhid` | Switch | Off |
-| Mouse (UHID) | `-G` / `--mouse=uhid` | Switch | Off |
+| Gamepad (UHID) | `-G` / `--gamepad=uhid` | Switch | Off |
 | Stay awake | `-w` / `--stay-awake` | Switch | Off |
 | Always on top | `--always-on-top` | Switch | Off |
 | Max resolution | `-m` / `--max-size` | Number | (device default) |

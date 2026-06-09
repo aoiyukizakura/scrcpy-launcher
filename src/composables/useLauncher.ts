@@ -25,7 +25,7 @@ export function useLauncher() {
     // Boolean flags (use short forms for compatibility)
     if (p.turnScreenOff) args.push("-S", "--turn-screen-off");
     if (p.keyboardUhid) args.push("-K", "--keyboard=uhid");
-    if (p.mouseUhid) args.push("-G", "--mouse=uhid");
+    if (p.gamepadUhid) args.push("-G", "--gamepad=uhid");
     if (p.stayAwake) args.push("-w", "--stay-awake");
     if (p.alwaysOnTop) args.push("--always-on-top");
 
