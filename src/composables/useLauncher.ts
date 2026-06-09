@@ -63,7 +63,7 @@ export function useLauncher() {
 
     // -x must always be paired with --new-display
     if (p.flexibleDisplay) {
-      args.push("-x", "--flex-display");
+      args.push("-x");
     }
 
     // Build --new-display value
