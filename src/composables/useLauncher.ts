@@ -46,25 +46,36 @@ export function useLauncher() {
   }
 
   /**
-   * Build the --new-display argument from resolution and DPI.
-   * Format: --new-display=1920x1080/224
+   * Build the --new-display and --flex-display arguments.
+   *
+   * scrcpy rule: -x / --flex-display MUST be paired with --new-display.
+   *   --new-display            → virtual display with default size
+   *   --new-display=WxH        → specific resolution
+   *   --new-display=WxH/DPI    → resolution + DPI
+   *   -x --new-display[=...]   → flexible virtual display
    */
   function buildNewDisplayArg(p: ScrcpyParams, args: string[]) {
     const res = p.newDisplayResolution;
     const dpi = p.newDisplayDpi;
+    const wantNewDisplay = p.flexibleDisplay || res || dpi;
 
-    // Flexible display flag
+    if (!wantNewDisplay) return;
 
+    // -x must always be paired with --new-display
     if (p.flexibleDisplay) {
       args.push("-x", "--flex-display");
     }
 
+    // Build --new-display value
     if (res && dpi) {
       args.push(`--new-display=${res}/${dpi}`);
     } else if (res) {
       args.push(`--new-display=${res}`);
     } else if (dpi) {
       args.push(`--new-display=${dpi}`);
+    } else {
+      // flexibleDisplay is on but no res/dpi → bare --new-display
+      args.push("--new-display");
     }
   }
 

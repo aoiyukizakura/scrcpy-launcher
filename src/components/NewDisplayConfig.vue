@@ -7,19 +7,28 @@ const configStore = useConfigStore();
 const p = configStore.params;
 
 /**
- * Preview the assembled --new-display argument value.
- * This is just a display hint — actual assembly happens in useLauncher.
+ * Preview the assembled --new-display / --flex-display arguments.
+ * Mirrors the logic in useLauncher.buildNewDisplayArg().
+ *
+ * scrcpy rule: -x MUST be paired with --new-display.
  */
 const preview = computed(() => {
   const res = p.newDisplayResolution;
   const dpi = p.newDisplayDpi;
   const flex = p.flexibleDisplay;
+
+  if (!flex && !res && !dpi) return "（未启用）";
+
   const parts: string[] = [];
+  // -x always paired with --new-display
   if (flex) parts.push("-x");
+
+  // --new-display value
   if (res && dpi) parts.push(`--new-display=${res}/${dpi}`);
   else if (res) parts.push(`--new-display=${res}`);
   else if (dpi) parts.push(`--new-display=${dpi}`);
-  if (parts.length === 0) return "（未启用）";
+  else if (flex) parts.push("--new-display");
+
   return parts.join(" ");
 });
 </script>
