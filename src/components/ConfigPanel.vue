@@ -66,8 +66,8 @@ const audioCodecOptions = [
                 class="relative h-5 w-9 rounded-full transition-colors"
               >
                 <span
-                  :class="p.turnScreenOff ? 'translate-x-[18px]' : 'translate-x-[2px]'"
-                  class="absolute top-1/2 h-3.5 w-3.5 -translate-y-1/2 rounded-full bg-white transition-transform"
+                  :class="p.turnScreenOff && 'translate-x-4'"
+                  class="absolute left-0.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 rounded-full bg-white transition-transform"
                 />
               </button>
             </label>
@@ -80,8 +80,8 @@ const audioCodecOptions = [
                 class="relative h-5 w-9 rounded-full transition-colors"
               >
                 <span
-                  :class="p.keyboardUhid ? 'translate-x-[18px]' : 'translate-x-[2px]'"
-                  class="absolute top-1/2 h-3.5 w-3.5 -translate-y-1/2 rounded-full bg-white transition-transform"
+                  :class="p.keyboardUhid && 'translate-x-4'"
+                  class="absolute left-0.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 rounded-full bg-white transition-transform"
                 />
               </button>
             </label>
@@ -94,8 +94,8 @@ const audioCodecOptions = [
                 class="relative h-5 w-9 rounded-full transition-colors"
               >
                 <span
-                  :class="p.gamepadUhid ? 'translate-x-[18px]' : 'translate-x-[2px]'"
-                  class="absolute top-1/2 h-3.5 w-3.5 -translate-y-1/2 rounded-full bg-white transition-transform"
+                  :class="p.gamepadUhid && 'translate-x-4'"
+                  class="absolute left-0.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 rounded-full bg-white transition-transform"
                 />
               </button>
             </label>
@@ -108,8 +108,8 @@ const audioCodecOptions = [
                 class="relative h-5 w-9 rounded-full transition-colors"
               >
                 <span
-                  :class="p.stayAwake ? 'translate-x-[18px]' : 'translate-x-[2px]'"
-                  class="absolute top-1/2 h-3.5 w-3.5 -translate-y-1/2 rounded-full bg-white transition-transform"
+                  :class="p.stayAwake && 'translate-x-4'"
+                  class="absolute left-0.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 rounded-full bg-white transition-transform"
                 />
               </button>
             </label>
@@ -122,8 +122,8 @@ const audioCodecOptions = [
                 class="relative h-5 w-9 rounded-full transition-colors"
               >
                 <span
-                  :class="p.alwaysOnTop ? 'translate-x-[18px]' : 'translate-x-[2px]'"
-                  class="absolute top-1/2 h-3.5 w-3.5 -translate-y-1/2 rounded-full bg-white transition-transform"
+                  :class="p.alwaysOnTop && 'translate-x-4'"
+                  class="absolute left-0.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 rounded-full bg-white transition-transform"
                 />
               </button>
             </label>
