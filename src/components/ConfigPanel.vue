@@ -1,47 +1,48 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
-import { useConfigStore } from "@/stores/config";
-import { buildScrcpyArgs } from "@/composables/useLauncher";
-import NewDisplayConfig from "./NewDisplayConfig.vue";
-import { X, ChevronDown, ChevronUp } from "lucide-vue-next";
+  import { computed, ref } from 'vue'
+  import { useConfigStore } from '@/stores/config'
+  import { buildScrcpyArgs } from '@/composables/useLauncher'
+  import NewDisplayConfig from './NewDisplayConfig.vue'
+  import { X, ChevronDown, ChevronUp } from 'lucide-vue-next'
+  import { storeToRefs } from 'pinia'
 
-defineProps<{
-  open: boolean;
-}>();
+  defineProps<{
+    open: boolean
+  }>()
 
-const emit = defineEmits<{
-  close: [];
-}>();
+  const emit = defineEmits<{
+    close: []
+  }>()
 
-const configStore = useConfigStore();
-const p = configStore.params;
+  const configStore = useConfigStore()
+  const p = storeToRefs(configStore).params
 
-/** Whether the command preview is expanded */
-const previewExpanded = ref(false);
+  /** Whether the command preview is expanded */
+  const previewExpanded = ref(false)
 
-/** Build full scrcpy command line for preview */
-const fullCommandPreview = computed(() => {
-  const args = buildScrcpyArgs(p, "<APP>");
-  const cmd = ["scrcpy", ...args];
-  return cmd.join(" \\\n  ");
-});
+  /** Build full scrcpy command line for preview */
+  const fullCommandPreview = computed(() => {
+    const args = buildScrcpyArgs(p.value, '<APP>')
+    const cmd = ['scrcpy', ...args]
+    return cmd.join(' \\\n  ')
+  })
 
-/** Video codec options per scrcpy v4.0 docs */
-const videoCodecOptions = [
-  { value: null, label: "默认 (h264)" },
-  { value: "h264", label: "H.264" },
-  { value: "h265", label: "H.265 / HEVC" },
-  { value: "av1", label: "AV1" },
-];
+  /** Video codec options per scrcpy v4.0 docs */
+  const videoCodecOptions = [
+    { value: null, label: '默认 (h264)' },
+    { value: 'h264', label: 'H.264' },
+    { value: 'h265', label: 'H.265 / HEVC' },
+    { value: 'av1', label: 'AV1' },
+  ]
 
-/** Audio codec options per scrcpy v4.0 docs */
-const audioCodecOptions = [
-  { value: null, label: "默认 (opus)" },
-  { value: "opus", label: "Opus" },
-  { value: "aac", label: "AAC" },
-  { value: "flac", label: "FLAC" },
-  { value: "raw", label: "Raw (无压缩)" },
-];
+  /** Audio codec options per scrcpy v4.0 docs */
+  const audioCodecOptions = [
+    { value: null, label: '默认 (opus)' },
+    { value: 'opus', label: 'Opus' },
+    { value: 'aac', label: 'AAC' },
+    { value: 'flac', label: 'FLAC' },
+    { value: 'raw', label: 'Raw (无压缩)' },
+  ]
 </script>
 
 <template>
@@ -53,9 +54,7 @@ const audioCodecOptions = [
       >
         <!-- Header -->
         <div class="flex items-center justify-between border-b border-zinc-800 px-4 py-3">
-          <h2 class="text-sm font-semibold text-zinc-200">
-            全局参数配置
-          </h2>
+          <h2 class="text-sm font-semibold text-zinc-200">全局参数配置</h2>
           <button
             @click="emit('close')"
             class="rounded p-1 text-zinc-500 transition-colors hover:bg-zinc-800 hover:text-zinc-300"
@@ -198,11 +197,7 @@ const audioCodecOptions = [
                 v-model="p.videoCodec"
                 class="w-full rounded-md border border-zinc-800 bg-zinc-900/50 px-2.5 py-1.5 text-xs text-zinc-200 outline-none focus:border-brand-600/50"
               >
-                <option
-                  v-for="opt in videoCodecOptions"
-                  :key="opt.value ?? 'default'"
-                  :value="opt.value"
-                >
+                <option v-for="opt in videoCodecOptions" :key="opt.value ?? 'default'" :value="opt.value">
                   {{ opt.label }}
                 </option>
               </select>
@@ -214,11 +209,7 @@ const audioCodecOptions = [
                 v-model="p.audioCodec"
                 class="w-full rounded-md border border-zinc-800 bg-zinc-900/50 px-2.5 py-1.5 text-xs text-zinc-200 outline-none focus:border-brand-600/50"
               >
-                <option
-                  v-for="opt in audioCodecOptions"
-                  :key="opt.value ?? 'default'"
-                  :value="opt.value"
-                >
+                <option v-for="opt in audioCodecOptions" :key="opt.value ?? 'default'" :value="opt.value">
                   {{ opt.label }}
                 </option>
               </select>
@@ -241,11 +232,10 @@ const audioCodecOptions = [
             <ChevronDown v-if="!previewExpanded" class="h-3.5 w-3.5" />
             <ChevronUp v-else class="h-3.5 w-3.5" />
           </button>
-          <div
-            v-if="previewExpanded"
-            class="border-t border-zinc-800 px-4 py-3"
-          >
-            <pre class="overflow-x-auto rounded-md bg-zinc-950 px-3 py-2 text-[10px] leading-relaxed text-zinc-300"><code>{{ fullCommandPreview }}</code></pre>
+          <div v-if="previewExpanded" class="border-t border-zinc-800 px-4 py-3">
+            <pre
+              class="overflow-x-auto rounded-md bg-zinc-950 px-3 py-2 text-[10px] leading-relaxed text-zinc-300"
+            ><code>{{ fullCommandPreview }}</code></pre>
             <p class="mt-1.5 text-[10px] text-zinc-600 leading-relaxed">
               参数实时生效，每次点击「运行」时会自动拼接当前配置。参考 scrcpy v4.0 官方文档。
             </p>
@@ -256,31 +246,27 @@ const audioCodecOptions = [
 
     <!-- Backdrop -->
     <Transition name="fade">
-      <div
-        v-if="open"
-        class="fixed inset-0 z-30 bg-black/40"
-        @click="emit('close')"
-      />
+      <div v-if="open" class="fixed inset-0 z-30 bg-black/40" @click="emit('close')" />
     </Transition>
   </Teleport>
 </template>
 
 <style scoped>
-.slide-enter-active,
-.slide-leave-active {
-  transition: transform 0.2s ease;
-}
-.slide-enter-from,
-.slide-leave-to {
-  transform: translateX(100%);
-}
+  .slide-enter-active,
+  .slide-leave-active {
+    transition: transform 0.2s ease;
+  }
+  .slide-enter-from,
+  .slide-leave-to {
+    transform: translateX(100%);
+  }
 
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.2s ease;
-}
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
+  .fade-enter-active,
+  .fade-leave-active {
+    transition: opacity 0.2s ease;
+  }
+  .fade-enter-from,
+  .fade-leave-to {
+    opacity: 0;
+  }
 </style>

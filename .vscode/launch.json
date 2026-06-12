@@ -1,0 +1,62 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Tauri: Debug (Rust + Frontend)",
+      "cargo": {
+        "args": [
+          "build",
+          "--manifest-path=${workspaceFolder}/src-tauri/Cargo.toml",
+          "--no-default-features"
+        ]
+      },
+      "env": {
+        "WEBKIT_DISABLE_COMPOSITING_MODE": "1"
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "sourceMap": {},
+      "preLaunchTask": "tauri: start frontend dev server"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Tauri: Debug (Rust only, release build)",
+      "cargo": {
+        "args": [
+          "build",
+          "--manifest-path=${workspaceFolder}/src-tauri/Cargo.toml",
+          "--release"
+        ]
+      },
+      "env": {
+        "WEBKIT_DISABLE_COMPOSITING_MODE": "1"
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "sourceMap": {},
+      "preLaunchTask": "tauri: build frontend"
+    },
+    {
+      "type": "pwa-chrome",
+      "request": "launch",
+      "name": "Frontend: Debug Vue (Vite)",
+      "url": "http://localhost:1420",
+      "webRoot": "${workspaceFolder}",
+      "preLaunchTask": "tauri: start frontend dev server",
+      "sourceMaps": true,
+      "sourceMapPathOverrides": {
+        "webpack://scrcpy-launcher/*": "${workspaceFolder}/*",
+        "webpack:///src/*": "${workspaceFolder}/src/*",
+        "webpack:///./src/*": "${workspaceFolder}/src/*",
+        "vite:///${workspaceFolder}/*": "${workspaceFolder}/*"
+      },
+      "skipFiles": [
+        "<node_internals>/**",
+        "node_modules/**"
+      ]
+    }
+  ]
+}
